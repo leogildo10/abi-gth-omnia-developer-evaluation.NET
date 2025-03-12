@@ -1,7 +1,9 @@
-using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
+using Ambev.DeveloperEvaluation.Application.Commands.Users;
+using Ambev.DeveloperEvaluation.Application.DTOs.Users.CreateUser;
+using Ambev.DeveloperEvaluation.Application.Handlers.Users;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Entities;
-using Ambev.DeveloperEvaluation.Domain.Repositories;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Unit.Domain;
 using AutoMapper;
 using FluentAssertions;
@@ -51,14 +53,14 @@ public class CreateUserHandlerTests
             Role = command.Role
         };
 
-        var result = new CreateUserResult
+        var result = new CreateUserResponse
         {
             Id = user.Id,
         };
 
 
         _mapper.Map<User>(command).Returns(user);
-        _mapper.Map<CreateUserResult>(user).Returns(result);
+        _mapper.Map<CreateUserResponse>(user).Returns(result);
 
         _userRepository.CreateAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
             .Returns(user);

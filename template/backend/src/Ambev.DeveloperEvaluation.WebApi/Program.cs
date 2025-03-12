@@ -13,6 +13,9 @@ using Serilog;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.DeleteUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
+using Ambev.DeveloperEvaluation.WebApi.Features.Users.ListUsers;
+using Ambev.DeveloperEvaluation.WebApi.Features.Users.UpdateUser;
+using Ambev.DeveloperEvaluation.WebApi.Mappings;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -45,10 +48,7 @@ public class Program
             builder.RegisterDependencies();
 
             builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
-            builder.Services.AddAutoMapper(typeof(AuthenticateUserProfile));
-            builder.Services.AddAutoMapper(typeof(CreateUserProfile));
-            builder.Services.AddAutoMapper(typeof(DeleteUserProfile));
-            builder.Services.AddAutoMapper(typeof(GetUserProfile));
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddMediatR(cfg =>
             {

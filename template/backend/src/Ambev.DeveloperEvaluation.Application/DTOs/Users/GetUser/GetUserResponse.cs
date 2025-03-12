@@ -1,9 +1,9 @@
 using Ambev.DeveloperEvaluation.Domain.Enums;
 
-namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
+namespace Ambev.DeveloperEvaluation.Application.DTOs.Users.GetUser;
 
 /// <summary>
-/// API response model for GetUser operation
+/// Response model for GetUser operation
 /// </summary>
 public class GetUserResponse
 {
@@ -25,7 +25,7 @@ public class GetUserResponse
     /// <summary>
     /// The user's phone number
     /// </summary>
-    public string Phone { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;   
 
     /// <summary>
     /// The user's role in the system
