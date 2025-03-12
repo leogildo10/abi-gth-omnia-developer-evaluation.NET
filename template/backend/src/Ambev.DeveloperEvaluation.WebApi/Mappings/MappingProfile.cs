@@ -7,8 +7,6 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Auth.AuthenticateUserFeature;
 using Ambev.DeveloperEvaluation.Application.Commands.Auth;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.ListUsers;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.UpdateUser;
-using Ambev.DeveloperEvaluation.Application.DTOs.Users.GetUser;
-using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
 using GetUserResponse = Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser.GetUserResponse;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Mappings;
@@ -45,6 +43,7 @@ public class MappingProfile : Profile
 
         CreateMap<UpdateUserRequest, UpdateUserCommand>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
-        CreateMap<UpdateUserResponse, DTO.Users.UpdateUser.UpdateUserResponse>();
+        CreateMap<User, DTO.Users.UpdateUser.UpdateUserResponse>();
+        CreateMap<DTO.Users.UpdateUser.UpdateUserResponse, UpdateUserResponse>();
     }
 }
