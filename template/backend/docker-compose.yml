@@ -38,6 +38,7 @@ services:
         MONGO_INITDB_ROOT_PASSWORD: ev@luAt10n
     ports:
       - "27017:27017"
+    restart: unless-stopped
 
   ambev.developerevaluation.cache:
     container_name: ambev_developer_evaluation_cache 
@@ -48,3 +49,4 @@ services:
        MONGO_INITDB_ROOT_PASSWORD: ev@luAt10n
     ports:
        - "6379:6379"
+    restart: unless-stopped
