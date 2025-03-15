@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Application.DTOs.Users.ListUsers;
+﻿using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Commands.Users;
@@ -10,9 +10,9 @@ namespace Ambev.DeveloperEvaluation.Application.Commands.Users;
 /// This command is used to capture the required data for listing users, 
 /// including the page number and page size for pagination. 
 /// It implements <see cref="IRequest{TResponse}"/> to initiate the request 
-/// that returns a <see cref="ListUsersResponse"/>.
+/// that returns a <see cref="ListUsersResponseDto"/>.
 /// </remarks>
-public record ListUsersCommand : IRequest<ListUsersResponse>
+public record ListUsersCommand : IRequest<ListUsersResponseDto>
 {
     /// <summary>
     /// Gets or sets the page number for pagination.

@@ -4,16 +4,16 @@ using FluentValidation;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
-using Ambev.DeveloperEvaluation.Application.DTOs.Users.CreateUser;
 using Ambev.DeveloperEvaluation.Application.Commands.Users;
 using Ambev.DeveloperEvaluation.Application.CommandsValidator.Users;
+using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
 
 /// <summary>
 /// Handler for processing CreateUserCommand requests
 /// </summary>
-public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserResponse>
+public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
@@ -38,7 +38,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
     /// <param name="command">The CreateUser command</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created user details</returns>
-    public async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+    public async Task<CreateUserResponseDto> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var validator = new CreateUserCommandValidator();
         var validationResult = await validator.ValidateAsync(command, cancellationToken);
@@ -54,7 +54,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         user.Password = _passwordHasher.HashPassword(command.Password);
 
         var createdUser = await _userRepository.CreateAsync(user, cancellationToken);
-        var result = _mapper.Map<CreateUserResponse>(createdUser);
+        var result = _mapper.Map<CreateUserResponseDto>(createdUser);
         return result;
     }
 }

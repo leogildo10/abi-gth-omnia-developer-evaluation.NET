@@ -5,7 +5,7 @@ using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using AutoMapper;
 using MediatR;
 using FluentValidation;
-using Ambev.DeveloperEvaluation.Application.DTOs.Users.UpdateUser;
+using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
 
@@ -16,7 +16,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
 /// This handler processes the request to update a user by validating the input, 
 /// retrieving the user from the repository, updating the user's details, and saving the changes.
 /// </remarks>
-public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
+public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
@@ -43,7 +43,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
     /// <returns>The response containing the updated user details.</returns>
     /// <exception cref="ValidationException">Thrown when the validation fails.</exception>
     /// <exception cref="KeyNotFoundException">Thrown when the user is not found.</exception>
-    public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<UpdateUserResponseDto> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
         var validator = new UpdateUserCommandValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -75,6 +75,6 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 
         await _userRepository.UpdateAsync(user, cancellationToken);
 
-        return _mapper.Map<UpdateUserResponse>(user);
+        return _mapper.Map<UpdateUserResponseDto>(user);
     }
 }

@@ -1,5 +1,5 @@
 using Ambev.DeveloperEvaluation.Application.Commands.Auth;
-using Ambev.DeveloperEvaluation.Application.DTOs.Auth.AuthenticateUser;
+using Ambev.DeveloperEvaluation.Application.DTOs.Auth.Response;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Specifications;
@@ -14,7 +14,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Auth;
 /// This handler processes the authentication request by verifying the user's credentials,
 /// checking if the user is active, and generating a JWT token if authentication is successful.
 /// </remarks>
-public class AuthenticateUserHandler : IRequestHandler<AuthenticateUserCommand, AuthenticateUserResponse>
+public class AuthenticateUserHandler : IRequestHandler<AuthenticateUserCommand, AuthenticateUserResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
@@ -43,7 +43,7 @@ public class AuthenticateUserHandler : IRequestHandler<AuthenticateUserCommand, 
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The authentication response containing the JWT token and user details.</returns>
     /// <exception cref="UnauthorizedAccessException">Thrown when the credentials are invalid or the user is not active.</exception>
-    public async Task<AuthenticateUserResponse> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
+    public async Task<AuthenticateUserResponseDto> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
@@ -60,7 +60,7 @@ public class AuthenticateUserHandler : IRequestHandler<AuthenticateUserCommand, 
 
         var token = _jwtTokenGenerator.GenerateToken(user);
 
-        return new AuthenticateUserResponse
+        return new AuthenticateUserResponseDto
         {
             Token = token,
             Email = user.Email,

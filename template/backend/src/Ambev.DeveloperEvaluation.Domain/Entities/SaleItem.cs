@@ -1,0 +1,49 @@
+﻿using Ambev.DeveloperEvaluation.Domain.Common;
+
+namespace Ambev.DeveloperEvaluation.Domain.Entities;
+
+/// <summary>
+/// Represents an item within a sale.
+/// </summary>
+public class SaleItem : BaseEntity
+{
+    /// <summary>
+    /// Gets or sets the unique identifier of the sale item.
+    /// </summary>
+    public Guid Id { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unique identifier of the sale to which this item belongs.
+    /// </summary>
+    public Guid SaleId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unique identifier of the product being sold.
+    /// </summary>
+    public Guid ProductId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the quantity of the product being sold.
+    /// </summary>
+    public int Quantity { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unit price of the product.
+    /// </summary>
+    public decimal UnitPrice { get; set; }
+
+    /// <summary>
+    /// Gets or sets the discount applied to the sale item.
+    /// </summary>
+    public decimal Discount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total amount for the sale item after applying the discount.
+    /// </summary>
+    public decimal TotalAmount { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the sale item is cancelled.
+    /// </summary>
+    public bool Cancelled { get; set; }
+}

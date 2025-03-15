@@ -2,9 +2,9 @@
 using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.Commands.Users;
-using Ambev.DeveloperEvaluation.Application.DTOs.Users.ListUsers;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
 
@@ -15,7 +15,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
 /// This handler processes the request to list users with pagination by querying the user repository,
 /// mapping the results, and returning a paginated response.
 /// </remarks>
-public class ListUsersHandler : IRequestHandler<ListUsersCommand, ListUsersResponse>
+public class ListUsersHandler : IRequestHandler<ListUsersCommand, ListUsersResponseDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
@@ -37,14 +37,14 @@ public class ListUsersHandler : IRequestHandler<ListUsersCommand, ListUsersRespo
     /// <param name="request">The command containing pagination parameters.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The response containing the paginated list of users.</returns>
-    public async Task<ListUsersResponse> Handle(ListUsersCommand request, CancellationToken cancellationToken)
+    public async Task<ListUsersResponseDto> Handle(ListUsersCommand request, CancellationToken cancellationToken)
     {
         var query = _userRepository.GetAllUsers();
         var paginatedUsers = await PaginatedList<User>.CreateAsync(query, request.Page, request.Size);
 
         var usersDto = paginatedUsers.Select(u => _mapper.Map<User>(u)).ToList();
 
-        return new ListUsersResponse
+        return new ListUsersResponseDto
         {
             Users = usersDto,
             CurrentPage = paginatedUsers.CurrentPage,

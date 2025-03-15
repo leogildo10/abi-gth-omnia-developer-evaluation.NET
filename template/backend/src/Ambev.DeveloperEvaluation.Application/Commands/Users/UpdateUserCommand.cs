@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Application.DTOs.Users.UpdateUser;
+﻿using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 using MediatR;
 
@@ -11,9 +11,9 @@ namespace Ambev.DeveloperEvaluation.Application.Commands.Users;
 /// This command is used to capture the required data for updating a user, 
 /// including the user ID, username, email, password, phone number, status, and role. 
 /// It implements <see cref="IRequest{TResponse}"/> to initiate the request 
-/// that returns a <see cref="UpdateUserResponse"/>.
+/// that returns a <see cref="UpdateUserResponseDto"/>.
 /// </remarks>
-public class UpdateUserCommand : IRequest<UpdateUserResponse>
+public class UpdateUserCommand : IRequest<UpdateUserResponseDto>
 {
     /// <summary>
     /// Gets or sets the unique identifier of the user to be updated.

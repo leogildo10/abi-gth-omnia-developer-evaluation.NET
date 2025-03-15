@@ -1,4 +1,4 @@
-using Ambev.DeveloperEvaluation.Application.DTOs.Users.DeleteUser;
+using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Commands.Users;
@@ -6,7 +6,7 @@ namespace Ambev.DeveloperEvaluation.Application.Commands.Users;
 /// <summary>
 /// Command for deleting a user
 /// </summary>
-public record DeleteUserCommand : IRequest<DeleteUserResponse>
+public record DeleteUserCommand : IRequest<DeleteUserResponseDto>
 {
     /// <summary>
     /// The unique identifier of the user to delete

@@ -13,6 +13,15 @@
     <PackageReference Include="AutoMapper" Version="14.0.0" />    
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="OneOf" Version="3.0.271" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DTOs\Auth\Request\" />
+    <Folder Include="DTOs\Carts\Request\" />
+    <Folder Include="DTOs\Products\Request\" />
+    <Folder Include="DTOs\Sales\Request\" />
+    <Folder Include="DTOs\Users\Request\" />
   </ItemGroup>
 
 </Project>
