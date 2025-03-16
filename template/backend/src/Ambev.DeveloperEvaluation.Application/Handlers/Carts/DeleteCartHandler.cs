@@ -1,43 +1,38 @@
 ﻿using MediatR;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
-using Ambev.DeveloperEvaluation.Application.DTOs.Carts.Response;
 using Ambev.DeveloperEvaluation.Application.Commands.Carts;
+using Ambev.DeveloperEvaluation.Application.DTOs.Carts.Response;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
 
-namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts;
-
-/// <summary>
-/// Handler for <see cref="DeleteCartCommand"/>.
-/// </summary>
-/// <remarks>
-/// This handler processes the request to delete an existing cart by validating the input, 
-/// and deleting the cart from the repository.
-/// </remarks>
-public class DeleteCartHandler : IRequestHandler<DeleteCartCommand, DeleteCartResponseDto>
+namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
 {
-    private readonly ICartRepository _cartRepository;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="DeleteCartHandler"/> class.
+    /// Handler for <see cref="DeleteCartCommand"/>.
+    /// Processes the deletion of a cart and invalidates its cache.
     /// </summary>
-    /// <param name="cartRepository">The cart repository instance.</param>
-    public DeleteCartHandler(ICartRepository cartRepository)
+    public class DeleteCartHandler : IRequestHandler<DeleteCartCommand, DeleteCartResponseDto>
     {
-        _cartRepository = cartRepository;
-    }
+        private readonly ICartRepository _cartRepository;
+        private readonly IRedisCacheService _cacheService;
 
-    /// <summary>
-    /// Handles the request to delete an existing cart.
-    /// </summary>
-    /// <param name="request">The command containing cart ID.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The response indicating whether the cart was successfully deleted.</returns>
-    /// <exception cref="FluentValidation.ValidationException">Thrown when the cart ID is invalid.</exception>
-    public async Task<DeleteCartResponseDto> Handle(DeleteCartCommand request, CancellationToken cancellationToken)
-    {
-        if (request.Id == Guid.Empty)
-            throw new FluentValidation.ValidationException("Cart ID is required");
+        public DeleteCartHandler(ICartRepository cartRepository, IRedisCacheService cacheService)
+        {
+            _cartRepository = cartRepository;
+            _cacheService = cacheService;
+        }
 
-        await _cartRepository.DeleteAsync(request.Id, cancellationToken);
-        return new DeleteCartResponseDto { Success = true };
+        public async Task<DeleteCartResponseDto> Handle(DeleteCartCommand request, CancellationToken cancellationToken)
+        {
+            if (request.Id == Guid.Empty)
+                throw new FluentValidation.ValidationException("Cart ID is required");
+
+            await _cartRepository.DeleteAsync(request.Id, cancellationToken);
+
+            // Invalida o cache do carrinho específico e da listagem de carrinhos
+            await _cacheService.RemoveAsync($"cart_{request.Id}");
+            await _cacheService.RemoveAsync("carts_list");
+
+            return new DeleteCartResponseDto { Success = true };
+        }
     }
 }

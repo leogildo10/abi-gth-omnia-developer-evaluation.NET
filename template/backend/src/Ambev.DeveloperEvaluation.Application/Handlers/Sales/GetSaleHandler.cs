@@ -2,55 +2,60 @@
 using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.DTOs.Sales.Response;
-using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 using Ambev.DeveloperEvaluation.Application.CommandsValidator.Sales;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using System.Text.Json;
+using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 
-namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales;
-
-/// <summary>
-/// Handler for <see cref="GetSaleCommand"/>.
-/// </summary>
-/// <remarks>
-/// This handler processes the request to retrieve an existing sale by validating the input, 
-/// retrieving the sale from the repository, and mapping the sale to the response DTO.
-/// </remarks>
-public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResponseDto>
+namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
 {
-    private readonly ISaleRepository _saleRepository;
-    private readonly IMapper _mapper;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="GetSaleHandler"/> class.
+    /// Handler for <see cref="GetSaleCommand"/>.
+    /// Processes the request to retrieve an existing sale, utilizing Redis cache.
     /// </summary>
-    /// <param name="saleRepository">The sale repository instance.</param>
-    /// <param name="mapper">The AutoMapper instance.</param>
-    public GetSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+    public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResponseDto>
     {
-        _saleRepository = saleRepository;
-        _mapper = mapper;
-    }
+        private readonly ISaleRepository _saleRepository;
+        private readonly IMapper _mapper;
+        private readonly IRedisCacheService _cacheService;
 
-    /// <summary>
-    /// Handles the request to retrieve an existing sale.
-    /// </summary>
-    /// <param name="request">The command containing sale ID.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The response containing the sale details.</returns>
-    /// <exception cref="FluentValidation.ValidationException">Thrown when the validation fails.</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when the sale is not found.</exception>
-    public async Task<GetSaleResponseDto> Handle(GetSaleCommand request, CancellationToken cancellationToken)
-    {
-        var validator = new GetSaleCommandValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        public GetSaleHandler(ISaleRepository saleRepository, IMapper mapper, IRedisCacheService cacheService)
+        {
+            _saleRepository = saleRepository;
+            _mapper = mapper;
+            _cacheService = cacheService;
+        }
 
-        if (!validationResult.IsValid)
-            throw new FluentValidation.ValidationException(validationResult.Errors);
+        public async Task<GetSaleResponseDto> Handle(GetSaleCommand request, CancellationToken cancellationToken)
+        {
+            var validator = new GetSaleCommandValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (!validationResult.IsValid)
+                throw new FluentValidation.ValidationException(validationResult.Errors);
 
-        if (sale == null)
-            throw new KeyNotFoundException($"Sale with ID {request.Id} not found");
+            // Define a chave do cache para o registro individual da venda.
+            var cacheKey = $"sale_{request.Id}";
+            var cachedData = await _cacheService.GetAsync(cacheKey);
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                var resultFromCache = JsonSerializer.Deserialize<GetSaleResponseDto>(cachedData);
+                if (resultFromCache != null)
+                    return resultFromCache;
+            }
 
-        return _mapper.Map<GetSaleResponseDto>(sale);
+            var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken);
+
+            if (sale == null)
+                throw new KeyNotFoundException($"Sale with ID {request.Id} not found");
+
+            var resultDto = _mapper.Map<GetSaleResponseDto>(sale);
+
+            // Serializa e salva no cache com TTL de 5 minutos.
+            var serializedResult = JsonSerializer.Serialize(resultDto);
+            await _cacheService.SetAsync(cacheKey, serializedResult);
+
+            return resultDto;
+        }
     }
 }

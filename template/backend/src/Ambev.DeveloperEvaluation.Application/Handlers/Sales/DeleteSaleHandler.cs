@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.DTOs.Sales.Response;
-using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
 {
@@ -15,25 +15,15 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IRebusEventPublisher _eventPublisher;
+        private readonly IRedisCacheService _cacheService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteSaleHandler"/> class.
-        /// </summary>
-        /// <param name="saleRepository">The sale repository instance.</param>
-        /// <param name="eventPublisher">The event publisher instance.</param>
-        public DeleteSaleHandler(ISaleRepository saleRepository, IRebusEventPublisher eventPublisher)
+        public DeleteSaleHandler(ISaleRepository saleRepository, IRebusEventPublisher eventPublisher, IRedisCacheService cacheService)
         {
             _saleRepository = saleRepository;
             _eventPublisher = eventPublisher;
+            _cacheService = cacheService;
         }
 
-        /// <summary>
-        /// Handles the request to delete an existing sale.
-        /// </summary>
-        /// <param name="request">The command containing the sale ID.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The response DTO indicating deletion success.</returns>
-        /// <exception cref="FluentValidation.ValidationException">Thrown when the sale ID is invalid.</exception>
         public async Task<DeleteSaleResponseDto> Handle(DeleteSaleCommand request, CancellationToken cancellationToken)
         {
             if (request.Id == Guid.Empty)
@@ -48,6 +38,10 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
                 CancelledAt = DateTime.UtcNow
             };
             await _eventPublisher.PublishAsync(saleCancelledEvent, cancellationToken);
+
+            // Invalida cache do registro individual e da listagem.
+            await _cacheService.RemoveAsync($"sale_{request.Id}");
+            await _cacheService.RemoveAsync("sales_list");
 
             return new DeleteSaleResponseDto { Success = true };
         }

@@ -13,34 +13,23 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
     /// <summary>
     /// Handler for <see cref="CreateSaleCommand"/>.
     /// Processes the creation of a new sale, calculates discounts and totals,
-    /// saves the sale and publishes a SaleCreatedEvent.
+    /// saves the sale, publishes a SaleCreatedEvent, and invalidates the sales list cache.
     /// </summary>
     public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResponseDto>
     {
         private readonly IMapper _mapper;
         private readonly ISaleRepository _saleRepository;
         private readonly IRebusEventPublisher _eventPublisher;
+        private readonly IRedisCacheService _cacheService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateSaleHandler"/> class.
-        /// </summary>
-        /// <param name="mapper">The AutoMapper instance.</param>
-        /// <param name="saleRepository">The sale repository instance.</param>
-        /// <param name="eventPublisher">The event publisher instance.</param>
-        public CreateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IRebusEventPublisher eventPublisher)
+        public CreateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IRebusEventPublisher eventPublisher, IRedisCacheService cacheService)
         {
             _mapper = mapper;
             _saleRepository = saleRepository;
             _eventPublisher = eventPublisher;
+            _cacheService = cacheService;
         }
 
-        /// <summary>
-        /// Handles the request to create a new sale.
-        /// </summary>
-        /// <param name="request">The command containing sale details.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The response DTO containing the created sale details.</returns>
-        /// <exception cref="FluentValidation.ValidationException">Thrown when validation fails.</exception>
         public async Task<CreateSaleResponseDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
         {
             var validator = new CreateSaleCommandValidator();
@@ -80,6 +69,9 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
                 CreatedAt = DateTime.UtcNow
             };
             await _eventPublisher.PublishAsync(saleCreatedEvent, cancellationToken);
+
+            // Invalida o cache da listagem de vendas (chave padrão: "sales_list")
+            await _cacheService.RemoveAsync("sales_list");
 
             return new CreateSaleResponseDto
             {

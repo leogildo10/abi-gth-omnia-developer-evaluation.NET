@@ -2,53 +2,45 @@
 using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
-using Ambev.DeveloperEvaluation.Application.CommandsValidator.Products;
 using Ambev.DeveloperEvaluation.Application.Commands.Products;
+using Ambev.DeveloperEvaluation.Application.CommandsValidator.Products;
 using Ambev.DeveloperEvaluation.Application.DTOs.Products.Response;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
 
-namespace Ambev.DeveloperEvaluation.Application.Handlers.Products;
-
-/// <summary>
-/// Handler for <see cref="CreateProductCommand"/>.
-/// </summary>
-/// <remarks>
-/// This handler processes the request to create a new product by validating the input, 
-/// mapping the command to the product entity, and saving the product to the repository.
-/// </remarks>
-public class CreateProductHandler : IRequestHandler<CreateProductCommand, CreateProductResponseDto>
+namespace Ambev.DeveloperEvaluation.Application.Handlers.Products
 {
-    private readonly IMapper _mapper;
-    private readonly IProductRepository _productRepository;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateProductHandler"/> class.
+    /// Handler for <see cref="CreateProductCommand"/>.
+    /// Processes the request to create a new product and invalidates the product list cache.
     /// </summary>
-    /// <param name="mapper">The AutoMapper instance.</param>
-    /// <param name="productRepository">The product repository instance.</param>
-    public CreateProductHandler(IMapper mapper, IProductRepository productRepository)
+    public class CreateProductHandler : IRequestHandler<CreateProductCommand, CreateProductResponseDto>
     {
-        _mapper = mapper;
-        _productRepository = productRepository;
-    }
+        private readonly IMapper _mapper;
+        private readonly IProductRepository _productRepository;
+        private readonly IRedisCacheService _cacheService;
 
-    /// <summary>
-    /// Handles the request to create a new product.
-    /// </summary>
-    /// <param name="request">The command containing product details.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The response containing the created product details.</returns>
-    /// <exception cref="FluentValidation.ValidationException">Thrown when the validation fails.</exception>
-    public async Task<CreateProductResponseDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
-    {
-        var validator = new CreateProductCommandValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        public CreateProductHandler(IMapper mapper, IProductRepository productRepository, IRedisCacheService cacheService)
+        {
+            _mapper = mapper;
+            _productRepository = productRepository;
+            _cacheService = cacheService;
+        }
 
-        if (!validationResult.IsValid)
-            throw new FluentValidation.ValidationException(validationResult.Errors);
+        public async Task<CreateProductResponseDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        {
+            var validator = new CreateProductCommandValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        var product = _mapper.Map<Product>(request);
-        await _productRepository.CreateAsync(product, cancellationToken);
+            if (!validationResult.IsValid)
+                throw new FluentValidation.ValidationException(validationResult.Errors);
 
-        return new CreateProductResponseDto { Id = product.Id, Title = product.Title };
+            var product = _mapper.Map<Product>(request);
+            await _productRepository.CreateAsync(product, cancellationToken);
+
+            // Invalida o cache da listagem de produtos, para que a próxima consulta seja atualizada.
+            await _cacheService.RemoveAsync("products_list");
+
+            return new CreateProductResponseDto { Id = product.Id, Title = product.Title };
+        }
     }
 }

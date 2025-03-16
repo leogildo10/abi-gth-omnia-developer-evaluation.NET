@@ -2,47 +2,44 @@ using MediatR;
 using FluentValidation;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.Commands.Users;
-using Ambev.DeveloperEvaluation.Application.CommandsValidator.Users;
 using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using Ambev.DeveloperEvaluation.Application.CommandsValidator.Users;
 
-namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
-
-/// <summary>
-/// Handler for processing DeleteUserCommand requests
-/// </summary>
-public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserResponseDto>
+namespace Ambev.DeveloperEvaluation.Application.Handlers.Users
 {
-    private readonly IUserRepository _userRepository;
-
     /// <summary>
-    /// Initializes a new instance of DeleteUserHandler
+    /// Handler for processing DeleteUserCommand requests.
+    /// Deletes a user and invalidates the user cache and users list cache.
     /// </summary>
-    /// <param name="userRepository">The user repository</param>
-    /// <param name="validator">The validator for DeleteUserCommand</param>
-    public DeleteUserHandler(
-        IUserRepository userRepository)
+    public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserResponseDto>
     {
-        _userRepository = userRepository;
-    }
+        private readonly IUserRepository _userRepository;
+        private readonly IRedisCacheService _cacheService;
 
-    /// <summary>
-    /// Handles the DeleteUserCommand request
-    /// </summary>
-    /// <param name="request">The DeleteUser command</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The result of the delete operation</returns>
-    public async Task<DeleteUserResponseDto> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
-    {
-        var validator = new DeleteUserCommandValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        public DeleteUserHandler(IUserRepository userRepository, IRedisCacheService cacheService)
+        {
+            _userRepository = userRepository;
+            _cacheService = cacheService;
+        }
 
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
+        public async Task<DeleteUserResponseDto> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        {
+            var validator = new DeleteUserCommandValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        var success = await _userRepository.DeleteAsync(request.Id, cancellationToken);
-        if (!success)
-            throw new KeyNotFoundException($"User with ID {request.Id} not found");
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
-        return new DeleteUserResponseDto { Success = true };
+            var success = await _userRepository.DeleteAsync(request.Id, cancellationToken);
+            if (!success)
+                throw new KeyNotFoundException($"User with ID {request.Id} not found");
+
+            // Invalida o cache do usuário individual e a listagem de usuários
+            await _cacheService.RemoveAsync($"user_{request.Id}");
+            await _cacheService.RemoveAsync("users_list");
+
+            return new DeleteUserResponseDto { Success = true };
+        }
     }
 }

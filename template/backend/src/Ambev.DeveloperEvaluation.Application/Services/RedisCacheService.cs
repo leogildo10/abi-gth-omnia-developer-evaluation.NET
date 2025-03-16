@@ -31,7 +31,7 @@ public class RedisCacheService : IRedisCacheService
     public async Task SetAsync(string key, string value)
     {
         var db = _redis.GetDatabase();
-        await db.StringSetAsync(key, value);
+        await db.StringSetAsync(key, value, TimeSpan.FromMinutes(5));
     }
 
     /// <summary>

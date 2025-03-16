@@ -3,43 +3,32 @@ using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.DTOs.Sales.Response;
 using Ambev.DeveloperEvaluation.Application.CommandsValidator.Sales;
-using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using Ambev.DeveloperEvaluation.Application.Commands.Sales;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
 {
     /// <summary>
     /// Handler for <see cref="UpdateSaleCommand"/>.
-    /// Processes the update of an existing sale, saves changes and publishes a SaleModifiedEvent.
+    /// Processes the update of an existing sale, saves changes, publishes a SaleModifiedEvent,
+    /// and invalidates the cache for the sale record and the sales list.
     /// </summary>
     public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleResponseDto>
     {
         private readonly IMapper _mapper;
         private readonly ISaleRepository _saleRepository;
         private readonly IRebusEventPublisher _eventPublisher;
+        private readonly IRedisCacheService _cacheService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateSaleHandler"/> class.
-        /// </summary>
-        /// <param name="mapper">The AutoMapper instance.</param>
-        /// <param name="saleRepository">The sale repository instance.</param>
-        /// <param name="eventPublisher">The event publisher instance.</param>
-        public UpdateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IRebusEventPublisher eventPublisher)
+        public UpdateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IRebusEventPublisher eventPublisher, IRedisCacheService cacheService)
         {
             _mapper = mapper;
             _saleRepository = saleRepository;
             _eventPublisher = eventPublisher;
+            _cacheService = cacheService;
         }
 
-        /// <summary>
-        /// Handles the request to update an existing sale.
-        /// </summary>
-        /// <param name="request">The command containing sale update details.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The response DTO containing the updated sale details.</returns>
-        /// <exception cref="FluentValidation.ValidationException">Thrown when validation fails.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown when the sale is not found.</exception>
         public async Task<UpdateSaleResponseDto> Handle(UpdateSaleCommand request, CancellationToken cancellationToken)
         {
             var validator = new UpdateSaleCommandValidator();
@@ -74,6 +63,10 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
                 ModifiedAt = DateTime.UtcNow
             };
             await _eventPublisher.PublishAsync(saleModifiedEvent, cancellationToken);
+
+            // Invalida cache do registro individual e da listagem.
+            await _cacheService.RemoveAsync($"sale_{request.Id}");
+            await _cacheService.RemoveAsync("sales_list");
 
             return new UpdateSaleResponseDto
             {

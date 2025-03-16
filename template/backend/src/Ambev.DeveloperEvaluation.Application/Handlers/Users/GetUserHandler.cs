@@ -1,53 +1,60 @@
-using AutoMapper;
 using MediatR;
+using AutoMapper;
 using FluentValidation;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.Commands.Users;
-using Ambev.DeveloperEvaluation.Application.CommandsValidator.Users;
 using Ambev.DeveloperEvaluation.Application.DTOs.Users.Response;
+using Ambev.DeveloperEvaluation.Application.CommandsValidator.Users;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using System.Text.Json;
 
-namespace Ambev.DeveloperEvaluation.Application.Handlers.Users;
-
-/// <summary>
-/// Handler for processing GetUserCommand requests
-/// </summary>
-public class GetUserHandler : IRequestHandler<GetUserCommand, GetUserResponseDto>
+namespace Ambev.DeveloperEvaluation.Application.Handlers.Users
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IMapper _mapper;
-
     /// <summary>
-    /// Initializes a new instance of GetUserHandler
+    /// Handler for processing GetUserCommand requests.
+    /// Retrieves a user by ID, utilizing Redis cache.
     /// </summary>
-    /// <param name="userRepository">The user repository</param>
-    /// <param name="mapper">The AutoMapper instance</param>
-    /// <param name="validator">The validator for GetUserCommand</param>
-    public GetUserHandler(
-        IUserRepository userRepository,
-        IMapper mapper)
+    public class GetUserHandler : IRequestHandler<GetUserCommand, GetUserResponseDto>
     {
-        _userRepository = userRepository;
-        _mapper = mapper;
-    }
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        private readonly IRedisCacheService _cacheService;
 
-    /// <summary>
-    /// Handles the GetUserCommand request
-    /// </summary>
-    /// <param name="request">The GetUser command</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The user details if found</returns>
-    public async Task<GetUserResponseDto> Handle(GetUserCommand request, CancellationToken cancellationToken)
-    {
-        var validator = new GetUserCommandValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        public GetUserHandler(IUserRepository userRepository, IMapper mapper, IRedisCacheService cacheService)
+        {
+            _userRepository = userRepository;
+            _mapper = mapper;
+            _cacheService = cacheService;
+        }
 
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
+        public async Task<GetUserResponseDto> Handle(GetUserCommand request, CancellationToken cancellationToken)
+        {
+            var validator = new GetUserCommandValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
-        var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (user == null)
-            throw new KeyNotFoundException($"User with ID {request.Id} not found");
+            // Define a chave de cache para o usuário individual
+            var cacheKey = $"user_{request.Id}";
+            var cachedData = await _cacheService.GetAsync(cacheKey);
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                var resultFromCache = JsonSerializer.Deserialize<GetUserResponseDto>(cachedData);
+                if (resultFromCache != null)
+                    return resultFromCache;
+            }
 
-        return _mapper.Map<GetUserResponseDto>(user);
+            var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {request.Id} not found");
+
+            var resultDto = _mapper.Map<GetUserResponseDto>(user);
+
+            // Serializa e salva no cache com TTL de 5 minutos
+            var serializedResult = JsonSerializer.Serialize(resultDto);
+            await _cacheService.SetAsync(cacheKey, serializedResult);
+
+            return resultDto;
+        }
     }
 }

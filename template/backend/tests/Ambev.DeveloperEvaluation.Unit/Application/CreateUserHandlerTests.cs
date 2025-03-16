@@ -4,6 +4,7 @@ using Ambev.DeveloperEvaluation.Application.Handlers.Users;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
+using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
 using Ambev.DeveloperEvaluation.Unit.Domain;
 using AutoMapper;
 using FluentAssertions;
@@ -20,6 +21,7 @@ public class CreateUserHandlerTests
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IRedisCacheService _cacheService;
     private readonly CreateUserHandler _handler;
 
     /// <summary>
@@ -31,7 +33,8 @@ public class CreateUserHandlerTests
         _userRepository = Substitute.For<IUserRepository>();
         _mapper = Substitute.For<IMapper>();
         _passwordHasher = Substitute.For<IPasswordHasher>();
-        _handler = new CreateUserHandler(_userRepository, _mapper, _passwordHasher);
+        _cacheService = Substitute.For<IRedisCacheService>();
+        _handler = new CreateUserHandler(_userRepository, _mapper, _passwordHasher, _cacheService);
     }
 
     /// <summary>
