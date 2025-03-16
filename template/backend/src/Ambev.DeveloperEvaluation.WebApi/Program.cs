@@ -13,6 +13,10 @@ using Ambev.DeveloperEvaluation.WebApi.Mappings;
 using Ambev.DeveloperEvaluation.Application.Services;
 using StackExchange.Redis;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using Rebus.Config;
+using Rebus.RabbitMq;
+using Rebus.ServiceProvider;
+using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -40,6 +44,13 @@ public class Program
                 )
             );
 
+            builder.Services.AddRebus((configure, provider) =>
+            {
+                return configure
+                    .Transport(t => t.UseRabbitMq(builder.Configuration.GetConnectionString("RabbitMQ"), "ambev.sales.queue"))
+                    .Options(o => o.SetNumberOfWorkers(1));
+            });
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.RegisterDependencies();
@@ -60,7 +71,10 @@ public class Program
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 
+            builder.Services.AddScoped<IRebusEventPublisher, RebusEventPublisher>();
+
             var app = builder.Build();
+
             app.UseMiddleware<ValidationExceptionMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
