@@ -14,9 +14,6 @@ using Ambev.DeveloperEvaluation.Application.Services;
 using StackExchange.Redis;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
 using Rebus.Config;
-using Rebus.RabbitMq;
-using Rebus.ServiceProvider;
-using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -78,7 +75,7 @@ public class Program
             app.UseMiddleware<ValidationExceptionMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
