@@ -1,0 +1,580 @@
+{
+	"info": {
+		"_postman_id": "84bf1f97-e2ae-41c5-9ede-b95d9eb31ffc",
+		"name": "DeveloperEvaluation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3726283"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"var token = jsonData.data.data.token;\r",
+									"pm.collectionVariables.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"leovigildo@gmail.com\",\r\n    \"password\": \"3IaFUtjw1M@\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/auth",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carts",
+			"item": [
+				{
+					"name": "CreateNew",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"5d10fe38-48dd-4c7e-80a3-d41957638534\",\r\n    \"date\": \"2023-03-09T12:00:00Z\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"0195a08e-107d-7aa3-b772-45185e0404cf\",\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"productId\": \"0195a08e-5419-7c38-bba8-22e580656660\",\r\n            \"quantity\": 1\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/carts",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/carts",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/carts/d3a63237-2356-4b6b-bc0e-eb4967edb93a",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"d3a63237-2356-4b6b-bc0e-eb4967edb93a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/carts/62a225d7-2433-4a1f-9e8f-8a42bc9e120a",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"62a225d7-2433-4a1f-9e8f-8a42bc9e120a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"5d10fe38-48dd-4c7e-80a3-d41957638534\",\r\n    \"date\": \"2025-03-30T12:00:00Z\",\r\n    \"items\": [\r\n        {\r\n            \"id\": \"0195a090-a2f3-71bc-bfb2-44b4d6e759a3\",\r\n            \"productId\": \"0195a090-a2f3-71bc-bfb2-44b4d6e759a3\",\r\n            \"quantity\": 21\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/carts/17ffb87b-f6c5-455f-9b8a-d16cdf700b59",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"17ffb87b-f6c5-455f-9b8a-d16cdf700b59"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "CreateNew",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Produto X\",\r\n    \"price\": 150.00,\r\n    \"description\": \"Descrição do produto X\",\r\n    \"category\": \"Category1\",\r\n    \"imageUrl\": \"https://example.com/produto-x.jpg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/products",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/products",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/products/0195a08d-766c-71c7-a3a3-5ac585621ccb",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"0195a08d-766c-71c7-a3a3-5ac585621ccb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/products/0195a088-e966-7276-8cd4-0b203deb7690",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"0195a088-e966-7276-8cd4-0b203deb7690"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Produto X Atualizado\",\r\n    \"price\": 180.00,\r\n    \"description\": \"Nova descrição do produto X\",\r\n    \"category\": \"Category1\",\r\n    \"imageUrl\": \"https://example.com/produto-x-atualizado.jpg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/products/e5126a80-426e-41fc-8dec-09d25db7241c",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"e5126a80-426e-41fc-8dec-09d25db7241c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"item": [
+				{
+					"name": "CreateNew",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"saleNumber\": \"S-001\",\r\n    \"saleDate\": \"2023-03-09T12:00:00Z\",\r\n    \"customer\": \"John Doe\",\r\n    \"branch\": \"Store 1\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"0195a08d-9244-752e-988f-fdc3d53c2b50\",\r\n            \"quantity\": 5,\r\n            \"unitPrice\": 100.00\r\n        },\r\n        {\r\n            \"productId\": \"0195a08d-9244-752e-988f-fdc3d53c2b50\",\r\n            \"quantity\": 12,\r\n            \"unitPrice\": 50.00\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/sales",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/sales",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/sales/f542144e-608a-4589-b11a-5b914923b9c5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sales",
+								"f542144e-608a-4589-b11a-5b914923b9c5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/sales/f542144e-608a-4589-b11a-5b914923b9c5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sales",
+								"f542144e-608a-4589-b11a-5b914923b9c5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"saleNumber\": \"S-001-UPDATED\",\r\n    \"saleDate\": \"2023-03-10T15:00:00Z\",\r\n    \"customer\": \"John Doe Updated\",\r\n    \"branch\": \"Store 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/sales/f542144e-608a-4589-b11a-5b914923b9c5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sales",
+								"f542144e-608a-4589-b11a-5b914923b9c5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "CreateNew",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Leovigildo Manuel\",\r\n    \"email\": \"leovigildo@gmail.com\",\r\n    \"password\": \"3IaFUtjw1M@\",\r\n    \"phone\": \"12345678\",\r\n    \"status\": 1,\r\n    \"role\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/users/e5126a80-426e-41fc-8dec-09d25db7241c",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"e5126a80-426e-41fc-8dec-09d25db7241c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/users/86228c4e-e4a0-4e6e-8af8-d883d8990e61",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"86228c4e-e4a0-4e6e-8af8-d883d8990e61"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Leovigildo Manuel\",\r\n    \"email\": \"leovigildo@gmail.com\",\r\n    \"password\": \"3IaFUtjw1M@\",\r\n    \"phone\": \"12345678\",\r\n    \"status\": 1,\r\n    \"role\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{baseUrl}}/api/users/e5126a80-426e-41fc-8dec-09d25db7241c",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"e5126a80-426e-41fc-8dec-09d25db7241c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "protocol",
+			"value": "https",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "localhost:44312",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

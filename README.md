@@ -84,3 +84,8 @@ This section includes links to the detailed documentation for the different API 
 This section describes the overall structure and organization of the project files and directories. 
 
 See [Project Structure](/.doc/project-structure.md)
+
+## How to Run and Test the Project
+This section describes all step by step of how to run and test the project. 
+
+See [How to Run and Test the Project](/.doc/how-to-run-and-test.md)
