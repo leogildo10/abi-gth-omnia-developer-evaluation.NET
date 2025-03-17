@@ -18,13 +18,15 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
     {
         private readonly IMapper _mapper;
         private readonly ISaleRepository _saleRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IRebusEventPublisher _eventPublisher;
         private readonly IRedisCacheService _cacheService;
 
-        public UpdateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IRebusEventPublisher eventPublisher, IRedisCacheService cacheService)
+        public UpdateSaleHandler(IMapper mapper, ISaleRepository saleRepository, IProductRepository productRepository, IRebusEventPublisher eventPublisher, IRedisCacheService cacheService)
         {
             _mapper = mapper;
             _saleRepository = saleRepository;
+            _productRepository = productRepository;
             _eventPublisher = eventPublisher;
             _cacheService = cacheService;
         }
@@ -33,10 +35,19 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
         {
             var validator = new UpdateSaleCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
             if (!validationResult.IsValid)
                 throw new FluentValidation.ValidationException(validationResult.Errors);
 
+            foreach (var item in request.Items)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
+                if (product == null)
+                    throw new KeyNotFoundException($"Product with ID {item.ProductId} not found.");
+            }
+
             var sale = await _saleRepository.GetByIdAsync(request.Id, cancellationToken);
+
             if (sale == null)
                 throw new KeyNotFoundException($"Sale with ID {request.Id} not found");
 
@@ -62,6 +73,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
                 SaleId = sale.Id,
                 ModifiedAt = DateTime.UtcNow
             };
+
             await _eventPublisher.PublishAsync(saleModifiedEvent, cancellationToken);
 
             // Invalida cache do registro individual e da listagem.

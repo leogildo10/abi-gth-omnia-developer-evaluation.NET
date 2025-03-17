@@ -13,7 +13,7 @@ public class UpdateSaleItemDto
     /// <summary>
     /// Gets or sets the unique identifier of the product being sold.
     /// </summary>
-    public Guid? ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
     /// <summary>
     /// Gets or sets the quantity of the product being sold.

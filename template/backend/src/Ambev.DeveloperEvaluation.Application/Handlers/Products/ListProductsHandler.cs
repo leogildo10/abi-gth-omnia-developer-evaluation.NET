@@ -36,7 +36,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Products
                 throw new FluentValidation.ValidationException(validationResult.Errors);
 
             // Define a chave do cache para a listagem de produtos baseada na paginação.
-            var cacheKey = $"products_list_page_{request.Page}_size_{request.Size}";
+            var cacheKey = $"products_list";
 
             // Tenta obter o resultado do cache.
             var cachedData = await _cacheService.GetAsync(cacheKey);

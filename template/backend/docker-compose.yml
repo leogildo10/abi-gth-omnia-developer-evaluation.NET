@@ -13,7 +13,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Database=developer_evaluation;Username=developer;Password=ev@luAt10n
-      - ConnectionStrings__Redis=redis:6379,password=ev%40luAt10n
+      - ConnectionStrings__Redis=redis:6379,password=ev@luAt10n
       - ConnectionStrings__RabbitMQ=amqp://developer:ev%40luAt10n@rabbitmq:5672/
     ports:
       - "8080:8080"
@@ -27,6 +27,7 @@ services:
       - mongodb
       - redis
       - rabbitmq
+    restart: unless-stopped
 
   postgres:
     container_name: developerevaluation_postgresql

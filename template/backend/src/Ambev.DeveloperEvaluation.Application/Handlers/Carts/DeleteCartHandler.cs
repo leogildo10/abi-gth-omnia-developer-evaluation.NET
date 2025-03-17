@@ -3,6 +3,7 @@ using Ambev.DeveloperEvaluation.Domain.Interfaces.Repositories;
 using Ambev.DeveloperEvaluation.Application.Commands.Carts;
 using Ambev.DeveloperEvaluation.Application.DTOs.Carts.Response;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
+using OneOf.Types;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
 {
@@ -26,7 +27,10 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
             if (request.Id == Guid.Empty)
                 throw new FluentValidation.ValidationException("Cart ID is required");
 
-            await _cartRepository.DeleteAsync(request.Id, cancellationToken);
+            var success = await _cartRepository.DeleteAsync(request.Id, cancellationToken);
+
+            if (!success)
+                throw new KeyNotFoundException($"Cart with ID {request.Id} not found");
 
             // Invalida o cache do carrinho específico e da listagem de carrinhos
             await _cacheService.RemoveAsync($"cart_{request.Id}");

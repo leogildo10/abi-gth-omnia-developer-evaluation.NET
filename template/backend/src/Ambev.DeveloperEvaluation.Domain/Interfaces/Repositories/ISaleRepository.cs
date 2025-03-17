@@ -43,5 +43,5 @@ public interface ISaleRepository
     /// <param name="id">The unique identifier of the sale to delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

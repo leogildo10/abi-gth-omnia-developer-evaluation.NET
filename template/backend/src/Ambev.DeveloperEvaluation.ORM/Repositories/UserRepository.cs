@@ -65,6 +65,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var user = await GetByIdAsync(id, cancellationToken);
+
         if (user == null)
             return false;
 
@@ -72,7 +73,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
-
+    
     public IQueryable<User> GetAllUsers()
     {
         return _context.Users.AsQueryable();

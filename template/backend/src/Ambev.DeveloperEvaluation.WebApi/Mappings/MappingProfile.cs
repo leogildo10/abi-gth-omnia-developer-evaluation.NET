@@ -31,6 +31,8 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.ListUsers;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.UpdateUser;
+using Ambev.DeveloperEvaluation.Application.DTOs.Sales;
+using Ambev.DeveloperEvaluation.Application.DTOs.Carts;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Mappings;
 
@@ -51,6 +53,7 @@ public class MappingProfile : Profile
         CreateMap<AuthenticateUserRequest, AuthenticateUserCommand>();
         CreateMap<AuthenticateUserResponseDto, AuthenticateUserResponse>();
 
+        CreateMap<CreateUserCommand, User>();
         CreateMap<CreateUserRequest, CreateUserCommand>();
         CreateMap<User, CreateUserResponseDto>();
         CreateMap<CreateUserResponseDto, CreateUserResponse>();
@@ -71,16 +74,22 @@ public class MappingProfile : Profile
         CreateMap<User, UpdateUserResponseDto>();
         CreateMap<UpdateUserResponseDto, UpdateUserResponse>();
 
+        CreateMap<CreateSaleCommand, Sale>();
         CreateMap<CreateSaleRequest, CreateSaleCommand>();
+        CreateMap<CreateSaleItemRequest, CreateSaleItemDto>();
         CreateMap<CreateSaleResponse, CreateSaleResponseDto>();
         CreateMap<CreateSaleResponseDto, CreateSaleResponse>();
 
+        CreateMap<Sale, GetSaleResponseDto>();
+        CreateMap<SaleItem, GetSaleItemDto>();
         CreateMap<GetSaleRequest, GetSaleCommand>()
             .ConstructUsing(req => new GetSaleCommand(req.Id));
         CreateMap<GetSaleResponse, GetSaleResponseDto>()
             .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
         CreateMap<GetSaleResponseDto, GetSaleResponse>();
+        CreateMap<GetSaleItemDto, GetSaleItemResponse>();
 
+        CreateMap<GetSaleResponseDto, ListSalesResponse>();
         CreateMap<ListSalesRequest, ListSalesCommand>();
         CreateMap<GetSaleResponse, ListSalesResponseDto>();
         CreateMap<ListSalesResponseDto, ListSalesResponse>();
@@ -93,15 +102,18 @@ public class MappingProfile : Profile
         CreateMap<DeleteSaleRequest, DeleteSaleCommand>()
             .ConstructUsing(req => new DeleteSaleCommand(req.Id));
 
+        CreateMap<CreateProductCommand, Product>();
         CreateMap<CreateProductRequest, CreateProductCommand>();
         CreateMap<CreateProductResponse, CreateProductResponseDto>();
         CreateMap<CreateProductResponseDto, CreateProductResponse>();
 
+        CreateMap<Product, GetProductResponseDto>();
         CreateMap<GetProductRequest, GetProductCommand>()
             .ConstructUsing(req => new GetProductCommand(req.Id));
         CreateMap<GetProductResponse, GetProductResponseDto>();
         CreateMap<GetProductResponseDto, GetProductResponse>();
 
+        CreateMap<GetProductResponseDto, ListProductsResponse>();
         CreateMap<ListProductsRequest, ListProductsCommand>();
         CreateMap<GetProductResponse, ListProductsResponseDto>();
         CreateMap<ListProductsResponseDto, ListProductsResponse>();
@@ -114,15 +126,21 @@ public class MappingProfile : Profile
         CreateMap<DeleteProductRequest, DeleteProductCommand>()
             .ConstructUsing(req => new DeleteProductCommand(req.Id));
 
+        CreateMap<CreateCartCommand, Cart>();
         CreateMap<CreateCartRequest, CreateCartCommand>();
+        CreateMap<CreateCartItemRequest, CreateCartItemDto>();
         CreateMap<CreateCartResponse, CreateCartResponseDto>();
         CreateMap<CreateCartResponseDto, CreateCartResponse>();
 
+        CreateMap<Cart, GetCartResponseDto>();
+        CreateMap<CartItem, GetCartItemDto>();
         CreateMap<GetCartRequest, GetCartCommand>()
             .ConstructUsing(req => new GetCartCommand(req.Id));
         CreateMap<GetCartResponse, GetCartResponseDto>()
             .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
         CreateMap<GetCartResponseDto, GetCartResponse>();
+        CreateMap<GetCartItemDto, GetCartItemResponse>();
+        CreateMap<GetCartResponseDto, ListCartsResponse>();
 
         CreateMap<ListCartsRequest, ListCartsCommand>();
         CreateMap<GetCartResponse, ListCartsResponseDto>();
@@ -130,6 +148,7 @@ public class MappingProfile : Profile
 
         CreateMap<UpdateCartRequest, UpdateCartCommand>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());
+        CreateMap<UpdateCartItemRequest, UpdateCartItemDto>();
         CreateMap<UpdateCartResponse, UpdateCartResponseDto>();
         CreateMap<UpdateCartResponseDto, UpdateCartResponse>();
 

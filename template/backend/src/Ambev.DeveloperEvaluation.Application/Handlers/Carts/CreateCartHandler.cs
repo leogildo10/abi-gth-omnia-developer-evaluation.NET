@@ -17,12 +17,14 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
     {
         private readonly IMapper _mapper;
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IRedisCacheService _cacheService;
 
-        public CreateCartHandler(IMapper mapper, ICartRepository cartRepository, IRedisCacheService cacheService)
+        public CreateCartHandler(IMapper mapper, ICartRepository cartRepository, IProductRepository productRepository, IRedisCacheService cacheService)
         {
             _mapper = mapper;
             _cartRepository = cartRepository;
+            _productRepository = productRepository;
             _cacheService = cacheService;
         }
 
@@ -30,8 +32,16 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
         {
             var validator = new CreateCartCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
             if (!validationResult.IsValid)
                 throw new FluentValidation.ValidationException(validationResult.Errors);
+
+            foreach (var item in request.Items)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
+                if (product == null)
+                    throw new KeyNotFoundException($"Product with ID {item.ProductId} not found.");
+            }
 
             var cart = new Cart
             {

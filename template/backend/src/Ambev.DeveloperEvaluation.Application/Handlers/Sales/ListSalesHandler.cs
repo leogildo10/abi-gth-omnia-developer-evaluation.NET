@@ -36,7 +36,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
                 throw new FluentValidation.ValidationException(validationResult.Errors);
 
             // Define a chave do cache com base nos parâmetros de paginação
-            var cacheKey = $"sales_list_page_{request.Page}_size_{request.Size}";
+            var cacheKey = $"sales_list";
 
             // Tenta obter os dados do cache
             var cachedData = await _cacheService.GetAsync(cacheKey);

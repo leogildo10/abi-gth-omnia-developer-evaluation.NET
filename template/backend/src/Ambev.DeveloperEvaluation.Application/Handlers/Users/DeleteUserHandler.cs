@@ -32,6 +32,7 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Users
                 throw new ValidationException(validationResult.Errors);
 
             var success = await _userRepository.DeleteAsync(request.Id, cancellationToken);
+
             if (!success)
                 throw new KeyNotFoundException($"User with ID {request.Id} not found");
 

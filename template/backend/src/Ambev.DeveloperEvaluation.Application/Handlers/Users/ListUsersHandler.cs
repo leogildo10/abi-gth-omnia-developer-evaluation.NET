@@ -30,7 +30,8 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Users
         public async Task<ListUsersResponseDto> Handle(ListUsersCommand request, CancellationToken cancellationToken)
         {
             // Define uma chave de cache baseada em parâmetros de paginação.
-            var cacheKey = $"users_list_page_{request.Page}_size_{request.Size}";
+            //var cacheKey = $"users_list_page_{request.Page}_size_{request.Size}";
+            var cacheKey = $"users_list";
             var cachedData = await _cacheService.GetAsync(cacheKey);
             if (!string.IsNullOrEmpty(cachedData))
             {

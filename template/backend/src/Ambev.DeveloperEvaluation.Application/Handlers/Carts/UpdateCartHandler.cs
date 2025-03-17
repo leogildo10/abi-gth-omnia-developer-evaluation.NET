@@ -14,14 +14,16 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
     /// </summary>
     public class UpdateCartHandler : IRequestHandler<UpdateCartCommand, UpdateCartResponseDto>
     {
-        private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
+        private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IRedisCacheService _cacheService;
 
-        public UpdateCartHandler(ICartRepository cartRepository, IMapper mapper, IRedisCacheService cacheService)
+        public UpdateCartHandler(IMapper mapper, ICartRepository cartRepository, IProductRepository productRepository, IRedisCacheService cacheService)
         {
-            _cartRepository = cartRepository;
             _mapper = mapper;
+            _cartRepository = cartRepository;
+            _productRepository = productRepository;
             _cacheService = cacheService;
         }
 
@@ -29,12 +31,20 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Carts
         {
             var validator = new UpdateCartCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
             if (!validationResult.IsValid)
                 throw new FluentValidation.ValidationException(validationResult.Errors);
 
             var cart = await _cartRepository.GetByIdAsync(request.Id, cancellationToken);
             if (cart == null)
                 throw new KeyNotFoundException($"Cart with ID {request.Id} not found");
+
+            foreach (var item in request.Items)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
+                if (product == null)
+                    throw new KeyNotFoundException($"Product with ID {item.ProductId} not found.");
+            }
 
             if (request.UserId.HasValue)
                 cart.UserId = request.UserId.Value;

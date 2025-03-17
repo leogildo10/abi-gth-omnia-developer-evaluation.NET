@@ -73,13 +73,15 @@ public class CartRepository : ICartRepository
     /// <param name="id">The unique identifier of the cart to delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var cart = await GetByIdAsync(id, cancellationToken);
-        if (cart != null)
-        {
-            _context.Carts.Remove(cart);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
+
+        if (cart == null)
+            return false;
+
+        _context.Carts.Remove(cart);
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

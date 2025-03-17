@@ -26,7 +26,10 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Products
             if (request.Id == Guid.Empty)
                 throw new FluentValidation.ValidationException("Product ID is required");
 
-            await _productRepository.DeleteAsync(request.Id, cancellationToken);
+            var success = await _productRepository.DeleteAsync(request.Id, cancellationToken);
+
+            if (!success)
+                throw new KeyNotFoundException($"Product with ID {request.Id} not found");
 
             // Invalida o cache do produto individual e da listagem.
             await _cacheService.RemoveAsync($"product_{request.Id}");

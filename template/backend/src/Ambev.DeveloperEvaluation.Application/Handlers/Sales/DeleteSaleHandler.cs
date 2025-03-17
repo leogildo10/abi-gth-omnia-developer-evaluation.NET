@@ -4,6 +4,7 @@ using Ambev.DeveloperEvaluation.Application.DTOs.Sales.Response;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Interfaces.Services;
 using Ambev.DeveloperEvaluation.Application.Commands.Sales;
+using OneOf.Types;
 
 namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
 {
@@ -29,7 +30,10 @@ namespace Ambev.DeveloperEvaluation.Application.Handlers.Sales
             if (request.Id == Guid.Empty)
                 throw new FluentValidation.ValidationException("Sale ID is required");
 
-            await _saleRepository.DeleteAsync(request.Id, cancellationToken);
+            var success = await _saleRepository.DeleteAsync(request.Id, cancellationToken);
+
+            if (!success)
+                throw new KeyNotFoundException($"Sale with ID {request.Id} not found");
 
             // Publish the SaleCancelledEvent via Rebus.
             var saleCancelledEvent = new SaleCancelledEvent

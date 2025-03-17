@@ -10,11 +10,4 @@
         public DateTime Date { get; set; }
         public List<GetCartItemResponse> Items { get; set; } = new();
     }
-
-    public class GetCartItemResponse
-    {
-        public Guid Id { get; set; }
-        public Guid ProductId { get; set; }
-        public int Quantity { get; set; }
-    }
 }

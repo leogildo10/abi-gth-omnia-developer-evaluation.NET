@@ -43,5 +43,5 @@ public class UpdateSaleCommand : IRequest<UpdateSaleResponseDto>
     /// <summary>
     /// Gets or sets the list of items included in the sale.
     /// </summary>
-    public List<UpdateSaleItemDto>? Items { get; set; }
+    public List<UpdateSaleItemDto>? Items { get; set; } = new();
 }
