@@ -20,7 +20,7 @@ namespace Ambev.DeveloperEvaluation.WebApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             try
             {
@@ -86,6 +86,32 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 builder.Services.AddScoped<IRebusEventPublisher, RebusEventPublisher>();
 
                 var app = builder.Build();
+
+                if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+                {
+                    //using (var scope = app.Services.CreateScope())
+                    //{
+                    //    var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
+                    //    dbContext.Database.Migrate();
+                    //}
+                    using (var scope = app.Services.CreateScope())
+                    {
+                        var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                        var shouldMigrate = config["Database:Migrate"]?.ToLower() == "true";
+                        var shouldSeed = config["Database:Seed"]?.ToLower() == "true";
+
+                        if (shouldMigrate)
+                        {
+                            var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
+                            dbContext.Database.Migrate();
+
+                            if (shouldSeed)
+                            {
+                                await DatabaseInitializer.SeedAsync(dbContext);
+                            }
+                        }
+                    }
+                }
 
                 app.UseMiddleware<ValidationExceptionMiddleware>();
                 app.UseMiddleware<ExceptionHandlingMiddleware>();
