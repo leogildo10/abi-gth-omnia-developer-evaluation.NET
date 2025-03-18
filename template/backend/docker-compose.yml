@@ -9,6 +9,7 @@ services:
       dockerfile: src/Ambev.DeveloperEvaluation.WebApi/Dockerfile
       args:
         BUILD_CONFIGURATION: Debug
+        BUILD_TIMESTAMP: ${BUILD_TIMESTAMP:-$(date +%s)}
     user: root
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

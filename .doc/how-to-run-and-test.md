@@ -35,7 +35,7 @@ Download or clone the project from the GitHub repository:
 In the `backend` folder, open a terminal (CMD, PowerShell, or VS Code Terminal) and run:
 
 ```bash
-  docker compose up -d
+  docker-compose up -d --build
 ```
 
 This will start the following containers:
@@ -83,9 +83,9 @@ This will start the following containers:
 
 ## **Generating and Applying Migrations**
 
-- **Via Application Startup:**
+- **Via Application Build:**
 
-  - Start the application via Visual Studio. If migrations are enabled, they will run automatically on startup. You can check the status at `https://localhost:44312/swagger/index.html`.
+  - After running the docker-compose up -d --build command, the migrations will be automatically created with their respective seeds..
 
 - **Via Visual Studio (Package Manager Console):**
 

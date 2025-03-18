@@ -85,30 +85,32 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 // Registro do publicador de eventos via Rebus
                 builder.Services.AddScoped<IRebusEventPublisher, RebusEventPublisher>();
 
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowAll", policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+                });
+
                 var app = builder.Build();
 
-                if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+                using (var scope = app.Services.CreateScope())
                 {
-                    //using (var scope = app.Services.CreateScope())
-                    //{
-                    //    var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
-                    //    dbContext.Database.Migrate();
-                    //}
-                    using (var scope = app.Services.CreateScope())
+                    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var shouldMigrate = config["Database:Migrate"]?.ToLower() == "true";
+                    var shouldSeed = config["Database:Seed"]?.ToLower() == "true";
+
+                    if (shouldMigrate)
                     {
-                        var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                        var shouldMigrate = config["Database:Migrate"]?.ToLower() == "true";
-                        var shouldSeed = config["Database:Seed"]?.ToLower() == "true";
+                        var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
+                        dbContext.Database.Migrate();
 
-                        if (shouldMigrate)
+                        if (shouldSeed)
                         {
-                            var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
-                            dbContext.Database.Migrate();
-
-                            if (shouldSeed)
-                            {
-                                await DatabaseInitializer.SeedAsync(dbContext);
-                            }
+                            await DatabaseInitializer.SeedAsync(dbContext);
                         }
                     }
                 }
@@ -123,7 +125,7 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 }
 
                 app.UseHttpsRedirection();
-
+                app.UseCors("AllowAll");
                 app.UseAuthentication();
                 app.UseAuthorization();
 
