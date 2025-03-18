@@ -1,5 +1,10 @@
 # Developer Evaluation Project
 
+## How to Run and Test the Project
+You can go straight to the session How to Run and Test the Project.
+
+See [How to Run and Test the Project](/.doc/how-to-run-and-test.md)
+
 `READ CAREFULLY`
 
 ## Instructions
