@@ -563,12 +563,12 @@
 	"variable": [
 		{
 			"key": "protocol",
-			"value": "https",
+			"value": "http",
 			"type": "string"
 		},
 		{
 			"key": "baseUrl",
-			"value": "localhost:44312",
+			"value": "localhost:8080",
 			"type": "string"
 		},
 		{
